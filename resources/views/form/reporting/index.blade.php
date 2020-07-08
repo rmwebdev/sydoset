@@ -470,8 +470,8 @@ div.dataTables_scrollHead thead tr[role="row"]{
                             { data:'tgl_proses', title:'TGL PROSSES',className: 'dt-td-center'},
                             { data:'tgl_msg', title:'TGL MESSENGGER',className: 'dt-td-center'},
                             { data:'tgl_finance', title:'TGL FINANCE',className: 'dt-td-center'},
-                            { data:'tgl_finance', title:'TGL REJECT FINANCE',className: 'dt-td-center'},
-                            { data:'tgl_finance', title:'TGL SETTLE FINANCE',className: 'dt-td-center'},
+                            { data:'tgl_reject_finance', title:'TGL REJECT FINANCE',className: 'dt-td-center'},
+                            { data:'tgl_settle', title:'TGL SETTLE FINANCE',className: 'dt-td-center'},
                             { data:'today', title:'LEADTIME',className: 'dt-td-center'},
                            ],
                 });

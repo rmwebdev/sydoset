@@ -91,6 +91,8 @@ class ReportController extends Controller
        b.tanggal_jam_Settle_operation,
        b.tanggal_jam_kasih_messenger,
        b.tanggal_jam_terima_finance,
+       b.tanggal_jam_reject_finance,
+       b.tanggal_jam_settle_finance,
        replace(b.lead_time::text,'days','hari') as lead_time
         from
        (select a.customer,
@@ -102,6 +104,8 @@ class ReportController extends Controller
        a.tanggal_jam_Settle_operation,
        a.tanggal_jam_kasih_messenger,
        a.tanggal_jam_terima_finance,
+       a.tanggal_jam_reject_finance,
+       a.tanggal_jam_settle_finance,
        (a.tanggal_jam_terima_dokumen::timestamp - a.tgl_tender::timestamp)as lead_time
         from
        (select a.customer,
@@ -112,7 +116,9 @@ class ReportController extends Controller
        max(dd.tanggal_jam_terima_dokumen) as tanggal_jam_terima_dokumen,
        max(aa.tanggal_jam_Settle_operation)as tanggal_jam_Settle_operation,
        max(bb.tanggal_jam_kasih_messenger)as tanggal_jam_kasih_messenger,
-       max(cc.tanggal_jam_terima_finance)as tanggal_jam_terima_finance
+       max(cc.tanggal_jam_terima_finance)as tanggal_jam_terima_finance,
+       max(ee.tanggal_jam_reject_finance)as tanggal_jam_reject_finance,
+       max(ff.tanggal_jam_settle_finance)as tanggal_jam_settle_finance
        from trx_documents a
        inner join trx_doc_histories b on a.number=b.document_number
        left join (
@@ -122,7 +128,7 @@ class ReportController extends Controller
        			a.created_at as tanggal_jam_Settle_operation,
        			row_number() OVER (PARTITION BY a.document_number ORDER BY a.id DESC) AS baris
        		from trx_doc_histories a
-       		where a.status_id = '13'
+       		where a.status_id = '4'
        ) aa on aa.document_number = a.number and aa.baris = 1
        left join (
        		select 
@@ -131,7 +137,7 @@ class ReportController extends Controller
        			a.created_at as tanggal_jam_kasih_messenger,
        			row_number() OVER (PARTITION BY a.document_number ORDER BY a.id DESC) AS baris
        		from trx_doc_histories a
-       		where a.status_id = '7'
+       		where a.status_id = '9'
        ) bb on bb.document_number = a.number and bb.baris = 1
        left join (
        		select 
@@ -151,15 +157,32 @@ class ReportController extends Controller
        		from trx_doc_histories a
        		where a.status_id = '1'
        ) dd on dd.document_number = a.number and dd.baris = 1
-	   where to_char(b.created_at,'dd-mm-yyyy') between '$date_from' and '$date_to'
+       left join (
+        select 
+            a.document_number,
+            a.status_id,
+            a.created_at as tanggal_jam_reject_finance,
+            row_number() OVER (PARTITION BY a.document_number ORDER BY a.id DESC) AS baris
+        from trx_doc_histories a
+        where a.status_id = '14'
+      ) ee on ee.document_number = a.number and ee.baris = 1
+      left join (
+        select 
+            a.document_number,
+            a.status_id,
+            a.created_at as tanggal_jam_settle_finance,
+            row_number() OVER (PARTITION BY a.document_number ORDER BY a.id DESC) AS baris
+        from trx_doc_histories a
+        where a.status_id = '13'
+      ) ff on ff.document_number = a.number and ff.baris = 1
+	   where to_char(a.tender_time,'dd-mm-yyyy') between '$date_from' and '$date_to'
        group by
        a.customer,
        a.order_number ,
        a.NUMBER,
        a.ccms_number,
        a.tgl_serah_terima,
-       a.tender_time)a)b
-       
+       a.tender_time)a)b       
        ) z"))->get(); 
 
        
@@ -174,11 +197,11 @@ class ReportController extends Controller
                     'tender_time' =>($value->tgl_tender != null ? date('d-m-yy H:i', strtotime($value->tgl_tender)) : ' - '),
                     'tgl_register'=> ($value->tanggal_jam_terima_dokumen != null ? date('d-m-yy H:i', strtotime($value->tanggal_jam_terima_dokumen)) : ' - '),
                     'tgl_proses'=> ($value->tanggal_jam_settle_operation != null ? date('d-m-yy H:i', strtotime($value->tanggal_jam_settle_operation)) : ' - '),
-                    // 'tgl_settle'=> ($value->tanggal_jam_settle_operation != null ? date('d-m-yy H:i', strtotime($value->tanggal_jam_settle_finance)) : ' - '),
                     'tgl_msg'=> ($value->tanggal_jam_kasih_messenger != null ? date('d-m-yy H:i', strtotime($value->tanggal_jam_kasih_messenger)) : ' - '),
                     'tgl_finance'=> ($value->tanggal_jam_terima_finance != null ? date('d-m-yy H:i', strtotime($value->tanggal_jam_terima_finance)) : ' - '),
-                    // 'today'=> substr($value->today, -0, -6).' hour'
-                    'today'=>($value->lead_time != '' ? substr($value->lead_time, -0, -6).' jam' : ' - ')
+                    'tgl_reject_finance'=> ($value->tanggal_jam_reject_finance != null ? date('d-m-yy H:i', strtotime($value->tanggal_jam_reject_finance)) : ' - '),
+                    'tgl_settle'=> ($value->tanggal_jam_settle_finance != null ? date('d-m-yy H:i', strtotime($value->tanggal_jam_settle_finance)) : ' - '),
+                    'today'=>($value->lead_time != '' ? substr($value->lead_time, -0, -6).' jam' : ' - ') //
                 ]);
             }return json_encode($data);
         }
