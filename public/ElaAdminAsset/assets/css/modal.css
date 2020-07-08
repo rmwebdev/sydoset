@@ -1,0 +1,40 @@
+
+
+.modal-content {
+    border: 1px solid #fff !important;
+    border-radius: 3px !important;
+}
+
+.modal-header {
+    padding: 32px;
+    border-bottom: 1px solid transparent;
+    font-size: 24px;
+}
+
+.modal-body {
+    font-size: 16px;
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-bottom: 32px;
+    padding-top: 0px;
+}
+
+.modal-footer {
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-bottom: 32px;
+    border-top: 1px solid transparent;
+}
+
+.btn-info{
+    background-color: #0d66fa;
+    border-color: #0d66fa;
+    border-radius: 2px;
+    width: 235px;
+}
+
+.btn-info:not(:disabled):not(.disabled).active, .btn-info:not(:disabled):not(.disabled):active, .show>.btn-info.dropdown-toggle {
+    color: #fff;
+    background-color: #0d66fa;
+    border-color: #0d66fa;
+}
